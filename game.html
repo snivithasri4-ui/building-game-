@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+  <style>
+    body {
+      margin: 0;
+      background: #111;
+      color: #fff;
+      font-family: Arial, sans-serif;
+      text-align: center;
+    }
+    canvas {
+      background: #222;
+      display: block;
+      margin: 20px auto;
+      border: 2px solid white;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Squid Game: Red Light 🔴 Green Light 🟢</h2>
+  <p>Hold <b>SPACE</b> to move during Green Light. Stop during Red Light!</p>
+  <p>Press <b>R</b> to Restart</p>
+
+  <canvas id="game" width="800" height="400"></canvas>
+
+  
+</body>
+<script>
+    const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
+
+let player = {
+  x: 50,
+  y: 200,
+  width: 30,
+  height: 30,
+  speed: 2
+};
+
+let score = 0;
+let gameOver = false;
+let light = "green"; // green or red
+let holding = false;
+
+// Change light every few seconds
+setInterval(() => {
+  if (!gameOver) {
+    light = light === "green" ? "red" : "green";
+  }
+}, 2000);
+
+// Input
+document.addEventListener("keydown", (e) => {
+  if (e.code === "Space") holding = true;
+  if (e.key === "r") restartGame();
+});
+
+document.addEventListener("keyup", (e) => {
+  if (e.code === "Space") holding = false;
+});
+
+function update() {
+  if (gameOver) return;
+
+  if (holding) {
+    if (light === "green") {
+      player.x += player.speed;
+      score++;
+    } else {
+      gameOver = true; // moved during red light
+    }
+  }
+
+  if (player.x + player.width >= canvas.width) {
+    gameOver = true;
+  }
+}
+
+function render() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  // Player
+  ctx.fillStyle = "cyan";
+  ctx.fillRect(player.x, player.y, player.width, player.height);
+
+  // Light status
+  ctx.fillStyle = light === "green" ? "green" : "red";
+  ctx.font = "30px Arial";
+  ctx.fillText(
+    light === "green" ? "GREEN LIGHT" : "RED LIGHT",
+    300,
+    50
+  );
+
+  // Score
+  ctx.fillStyle = "white";
+  ctx.font = "20px Arial";
+  ctx.fillText("Score: " + score, 20, 30);
+
+  if (gameOver) {
+    ctx.fillStyle = "yellow";
+    ctx.font = "40px Arial";
+    ctx.fillText("GAME OVER", 280, 200);
+    ctx.font = "20px Arial";
+    ctx.fillText("Press R to Restart", 310, 240);
+  }
+}
+
+function gameLoop() {
+  update();
+  render();
+  requestAnimationFrame(gameLoop);
+}
+
+function restartGame() {
+  player.x = 50;
+  score = 0;
+  gameOver = false;
+  light = "green";
+}
+
+gameLoop();
+
+</script>
+</html>
